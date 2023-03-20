@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -32,5 +33,8 @@ public class Course implements Serializable {
     @ManyToOne
     @JoinColumn(name = "teacher_id")
     private Teacher mainTeacher;
+
+    @ManyToMany(mappedBy = "courses")
+    private List<Student> student;
 
 }
