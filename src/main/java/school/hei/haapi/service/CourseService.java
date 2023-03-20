@@ -20,7 +20,7 @@ public class CourseService {
 
 public List<Course> getCourseByStatus (String student_id,Course.Status status ){
     if(status == LINKED){
-        return courseRepository.findCourseByStudentIdAndStatus(student_id, status);
+        return courseRepository.findCourseByIdAndStatus(student_id, status);
     }
     return null;
 }

@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface CourseRepository extends JpaRepository<Course,String> {
     List<Fee> getByMainTeacherId(String UserId, Pageable pageable);
-    List<Course> findCourseByStudentIdAndStatus (String id,Course.Status status);
+    List<Course> findCourseByIdAndStatus (String id,Course.Status status);
 
 }
