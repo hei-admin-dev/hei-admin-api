@@ -1,0 +1,2 @@
+INSERT INTO "teacher" (firstName, lastName, email, ref, status, phone, birthDate, entranceDatetime, sex, address)
+VALUES ('John', 'Doe', 'john@email.com', 'T001', 'ENABLED', '+123456789', '1990-01-01', '2021-08-01 10:00:00', 'M', '123 Main St');
