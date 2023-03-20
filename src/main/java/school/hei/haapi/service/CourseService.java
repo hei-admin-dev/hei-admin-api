@@ -8,6 +8,9 @@ import school.hei.haapi.model.Course;
 import school.hei.haapi.repository.CourseRepository;
 
 import java.util.List;
+import java.util.Objects;
+
+import static school.hei.haapi.model.Course.Status.LINKED;
 
 @Service
 @AllArgsConstructor
@@ -15,5 +18,10 @@ import java.util.List;
 public class CourseService {
     private final CourseRepository courseRepository;
 
-
+public List<Course> getCourseByStatus (String student_id,Course.Status status ){
+    if(status == LINKED){
+        return courseRepository.findCourseByStudentIdAndStatus(student_id, status);
+    }
+    return null;
+}
 }

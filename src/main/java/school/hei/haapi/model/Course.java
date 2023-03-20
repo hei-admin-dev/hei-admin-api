@@ -52,4 +52,10 @@ public class Course {
     )
     private Set<User> Student;
 
+    private Status status;
+
+    public enum Status {
+        LINKED,UNLINKED
+    }
+
 }
