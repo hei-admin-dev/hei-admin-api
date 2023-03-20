@@ -26,7 +26,7 @@ public class CourseMapper {
     }
 
     public school.hei.haapi.model.Course toDomainCrupdateCourse(CrupdateCourse crupdateCourse) {
-        User teacher = userService.getById(crupdateCourse.getId());
+        User teacher = userService.getById(crupdateCourse.getMainTeacherId());
         if (teacher == null) {
             throw new NotFoundException("Teacher.id=" + crupdateCourse.getId() + " is not found");
         }
