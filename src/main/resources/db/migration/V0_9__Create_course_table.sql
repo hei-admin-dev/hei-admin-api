@@ -10,5 +10,5 @@ create table if not exists "course"
     credits           integer                  default 0,
     total_hours       integer                  default 0,
     user_id           varchar                  not null
-            constraint course_user_id_fk references "user"(id),
+            constraint course_user_id_fk references "user"(id)
 );
