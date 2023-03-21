@@ -19,10 +19,16 @@ public class CourseService {
     private CourseRepository courseRepository;
     private CourseValidator courseValidator;
 
-    public List<Course> getAll(PageFromOne page, BoundedPageSize pageSize){
+    public List<Course> getAll(PageFromOne page, BoundedPageSize pageSize) {
+        int pageValue = 1;
+        int pageSizeValue = 15;
+        if (page.getValue() != 0)
+            pageValue = page.getValue();
+        if (pageSize.getValue() != 0)
+            pageSizeValue = pageSize.getValue();
         Pageable pageable = PageRequest.of(
-                page.getValue() - 1,
-                pageSize.getValue()
+                pageValue - 1,
+                pageSizeValue
         );
         return courseRepository.findAll(pageable).getContent();
     }
