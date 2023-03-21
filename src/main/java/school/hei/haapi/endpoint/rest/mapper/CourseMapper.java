@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -11,7 +12,7 @@ import school.hei.haapi.service.UserService;
 @Component
 @AllArgsConstructor
 public class CourseMapper {
-    private UserService userService;
+     private UserService userService;
     private UserMapper userMapper;
 
     public Course toRestCourse(school.hei.haapi.model.Course course) {
