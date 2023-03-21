@@ -37,8 +37,6 @@ public class TestUtils {
   public static final String LINKED_STATUS = "LINKED";
   public static final String UNLINKED_STATUS = "UNLINKED";
 
-
-
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";

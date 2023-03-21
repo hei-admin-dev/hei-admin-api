@@ -11,5 +11,4 @@ import java.util.List;
 @Repository
 public interface CourseRepository extends JpaRepository<Course,String> {
     List<Fee> getByMainTeacherId(String UserId, Pageable pageable);
-
 }

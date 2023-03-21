@@ -30,6 +30,7 @@ public class Course {
     private String id;
 
     @NotBlank(message = "Code is mandatory")
+    @Column(nullable = false, unique = true)
     private String code;
 
     @NotBlank(message = "Name is mandatory")
@@ -41,7 +42,7 @@ public class Course {
     private int totalHours;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User mainTeacher;
 
     @ManyToMany

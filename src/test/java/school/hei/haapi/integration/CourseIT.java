@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -23,15 +24,35 @@ import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
+import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.*;
+import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static java.util.UUID.randomUUID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -82,6 +103,40 @@ class CourseIT {
     }
 
 
+
+
+    public static Course course1() {
+        Course course = new Course();
+        course.setId("course1_id");
+        course.setName("Name of course one");
+        course.setCode("CRS21001");
+        course.setCredits(1);
+        course.setTotalHours(1);
+        course.setMainTeacher(teacher1());
+        return course;
+    }
+
+    public static Course course2() {
+        Course course = new Course();
+        course.setId("course2_id");
+        course.setName("Name of course two");
+        course.setCode("CRS21002");
+        course.setCredits(2);
+        course.setTotalHours(2);
+        course.setMainTeacher(teacher1());
+        return course;
+    }
+
+    public static CrupdateCourse someCreatableCourse() {
+        CrupdateCourse course = new CrupdateCourse();
+        course.setName("Some name");
+        course.setCode("GRP21-" + randomUUID());
+        course.setCredits(3);
+        course.setTotalHours(3);
+        course.setMainTeacherId(TEACHER1_ID);
+        return course;
+    }
+
     public static Teacher teacher1() {
         Teacher teacher = new Teacher();
         teacher.setId("teacher1_id");
@@ -120,8 +175,9 @@ class CourseIT {
        course.setMainTeacher(teacher1());
        return course;
 }
+   
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         setUpCognito(cognitoComponentMock);
     }
 
@@ -144,6 +200,23 @@ class CourseIT {
         UsersApi api = new UsersApi(manager1Client);
         List<Course> actual = api.updateStudentCourses(STUDENT1_ID, List.of(someModifiableCourse()));
         assertEquals(actual,course1());
+         }
+    void badtoken_write_ko() {
+        ApiClient anonymousClient = anApiClient(BAD_TOKEN);
+
+        TeachingApi api = new TeachingApi(anonymousClient);
+        assertThrowsForbiddenException(() -> api.crupdateCourses(List.of(new CrupdateCourse())));
+    }
+
+    @Test
+    void student_read_ok() throws ApiException {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+
+        TeachingApi api = new TeachingApi(student1Client);
+        List<Course> actualCourses = api.getCourses(1, 15);
+
+        assertTrue(actualCourses.contains(course1()));
+        assertTrue(actualCourses.contains(course2()));
     }
 
     @Test
@@ -154,6 +227,10 @@ class CourseIT {
         assertThrowsApiException(
                 "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
                 () -> api.updateStudentCourses(STUDENT1_ID, List.of()));
+
+
+        TeachingApi api = new TeachingApi(student1Client);
+        assertThrowsForbiddenException(() -> api.crupdateCourses(List.of(new CrupdateCourse())));
     }
 
     @Test
@@ -168,7 +245,39 @@ class CourseIT {
 
     @Test
     void manager_write_with_some_bad_fields_ko() throws ApiException {
+        ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
+        TeachingApi api = new TeachingApi(teacher1Client);
+        assertThrowsForbiddenException(() -> api.crupdateCourses(List.of(new CrupdateCourse())));
+    }
+
+    @Test
+    void manager_write_create_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        CrupdateCourse toCreate = someCreatableCourse();
+        List<CrupdateCourse> toCreateList = List.of(toCreate);
+
+        TeachingApi api = new TeachingApi(manager1Client);
+        Course created = api.crupdateCourses(toCreateList).get(0);
+
+        assertTrue(isValidUUID(created.getId()));
+        toCreate.setId(created.getId());
+        assertNotNull(created.getTotalHours());
+        assertEquals(toCreate.getCode(),created.getCode());
+    }
+
+    @Test
+    void manager_write_update_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        CrupdateCourse toUpdate = someCreatableCourse();
+        List<Course> toUpdateCourse = api.crupdateCourses(List.of(toUpdate));
+        toUpdate.setId(toUpdateCourse.get(0).getId());
+        toUpdate.setName("A new name zero");
+
+        Course updated = api.crupdateCourses(List.of(toUpdate)).get(0);
+
+        assertEquals(updated.getName(), toUpdate.getName());
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
@@ -179,4 +288,3 @@ class CourseIT {
             return SERVER_PORT;
         }
     }
-}
