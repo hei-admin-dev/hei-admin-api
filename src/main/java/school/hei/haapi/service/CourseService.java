@@ -10,7 +10,13 @@ import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.CourseRepository;
+import java.util.List;
+import java.util.Objects;
+import static school.hei.haapi.model.Course.Status.LINKED;
+import static school.hei.haapi.model.Course.Status.UNLINKED;
+
 import school.hei.haapi.repository.UserRepository;
+
 
 @Service
 @AllArgsConstructor
@@ -31,7 +37,13 @@ public class CourseService {
         }
         else throw new BadRequestException("Not recognized parameters");
 
-        return course;
-    }
 
+public List<Course> getCourseByStatus (String student_id,Course.Status status ){
+    if(status == LINKED){
+        return courseRepository.findCourseByIdAndStatus(student_id, status);
+    }
+    return courseRepository.findCourseByIdAndStatus(student_id,UNLINKED);
+}        return course;
+    
 }
+

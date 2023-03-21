@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import school.hei.haapi.repository.types.PostgresEnumType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -20,6 +22,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Table(name = "\"course\"")
 @Getter
 @Setter
+@TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
 @ToString
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -51,5 +54,11 @@ public class Course {
             inverseJoinColumns = @JoinColumn(name = "id_user", referencedColumnName = "id")
     )
     private Set<User> Student;
+
+    private Status status;
+
+    public enum Status {
+        LINKED,UNLINKED
+    }
 
 }
