@@ -27,7 +27,7 @@ public class CourseController {
     private final CourseService courseService;
     private final CourseMapper courseMapper;
 
-    @PutMapping("/students/{student_id}/courses")
+    @PutMapping("/students/{student_id}/courses")y
     public Course updateCoursesByStatus(@RequestBody List<UpdateStudentCourse> course, @PathVariable String student_id, String status) {
         return courseMapper.toRestCourse(courseService.updateCourseStatus(student_id, course.get(0).getCourseId(), course.get(0).getStatus().toString()));
     }
